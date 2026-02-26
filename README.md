@@ -9,8 +9,8 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 ## Características
 
 ### 🔮 Magia Libra
-- Marca automáticamente las cartas más barata en las páginas de ofertas y stock
-- Considera precio, condición, foil e idioma para determinar la mejor oferta
+- Marca automáticamente las cartas más baratas en las páginas de ofertas y stock
+- Considera los valores precio > condición > foil > idioma para determinar la mejor oferta
 
 ### ⚠️ Magia Doble
 - En el carrito, detecta cartas duplicadas
