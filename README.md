@@ -25,7 +25,7 @@ Extensión para Chrome que te ayuda en Cardmarket detectando precios más bajos 
    - Descomprime el archivo
 
 2. **Instala en Chrome**
-   - Abre Chrome y ve a `chrome://extensions/`
+   - Si usas Brave, ábrelo y ve a `brave://extensions/`. Si usas Google Chrome, ve a `chrome://extensions/`
    - Activa el **"Modo de desarrollador"** (esquina superior derecha)
    - Click en **"Cargar descomprimida"**
    - Selecciona la carpeta descomprimida `detective-moguri`
