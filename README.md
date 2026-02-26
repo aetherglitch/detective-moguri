@@ -14,7 +14,7 @@ Extensión para Chrome que te ayuda en Cardmarket detectando precios más bajos 
 
 ## Instalación
 
-### Opción 1: Desde Chrome Web Store
+### Opción 1: Desde Brave/Chrome Web Store
 *(Próximamente disponible)*
 
 ### Opción 2: Instalación manual (desarrollador)
