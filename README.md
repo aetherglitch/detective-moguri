@@ -1,6 +1,10 @@
 # Detective Moguri 🕵️
 
-Extensión para Chrome que te ayuda en Cardmarket detectando precios más bajos y duplicados.
+Extensión para Brave/Chrome para ser usada en Cardmarket con el objetivo de hacer tus compras un poco menos dolorosas para el bolsillo.
+
+Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Cardmarket funciona un poco mal a la hora de establecer pedidos bajo la opción de "buscar precios más bajos" por culpa de vendedores que suben cartas a precios desorbitados para subir el valor de las cartas y por el amor de este autor a la saga Final Fantasy.
+
+¡Espero que te sirva y compres barato gracias a tu nuevo detective favorito, kupó!
 
 ## Características
 
