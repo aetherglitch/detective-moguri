@@ -4,8 +4,6 @@ Extensión para Brave/Chrome para ser usada en Cardmarket con el objetivo de hac
 
 Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Cardmarket funciona un poco mal a la hora de establecer pedidos bajo la opción de "buscar precios más bajos" por culpa de vendedores que suben cartas a precios desorbitados para subir el valor de las cartas y por el amor de este autor a la saga Final Fantasy.
 
-¡Espero que te sirva y compres barato gracias a tu nuevo detective favorito, kupó!
-
 ## Características
 
 ### 🔮 Magia Libra
@@ -41,27 +39,19 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 ## Uso
 
 ### En ofertas/stock
-- Las cartas más barata se marcan con fondo verde y el tag "💰 Oferta, ¡kupó!"
+- Las cartas más barata se marcan con fondo verde y la etiqueta "💰 Oferta, ¡kupó!"
 - Las otras ofertas de la misma carta se muestran con menor opacidad
-- Las cartas en tu carrito no se marcan como oferta
 
 ### En el carrito
-- Las cartas duplicadas que cuest que la más barataan más se marcan en rojo
-- El tag "💰 Más caro, ¡kupó!" aparece junto al precio
+- Las cartas duplicadas que cuestan más que la más barata de ellas se marcan en rojo con la etiqueta "💰 Más caro, ¡kupó!"
 
 ### Popup
-- Activa o desactiva cada función con los toggle
+- Activa o desactiva cada función con los activadores al lado de cada función
 - **Vaciar caché**: Limpia el historial de cartas en carrito (útil si hay problemas)
 
-## Notas
+## Disclaimer
 
-- Proyecto fan-made, no afiliado a Cardmarket ni Square Enix
-- Los nombres y expresiones usados están registrados por Square Enix
-
-## Tecnologías
-
-- JavaScript (Vanilla)
-- Chrome Extensions API (Manifest V3)
+- Este proyecto es fan-made, no afiliado a Cardmarket ni Square Enix. Los nombres y expresiones usados están registrados por Square Enix y completamente bajo su copyright. Este proyecto no busca ánimo de lucro alguno bajo el uso de estos elementos.
 
 ---
 
