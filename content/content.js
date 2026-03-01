@@ -17,6 +17,23 @@
         if (CONFIG.debug) console.log(`[MoguDebug] ${message}`, ...args);
     }
 
+    chrome.storage.onChanged.addListener(function(changes, areaName) {
+        if (areaName === 'local' && changes.dc_settings) {
+            const newSettings = changes.dc_settings.newValue;
+            CONFIG.enableLibra = newSettings.libra;
+            CONFIG.enableDuplicados = newSettings.duplicados;
+            CONFIG.enableEspejo = newSettings.espejo !== undefined ? newSettings.espejo : true;
+            log(`Config actualizada: enableLibra=${CONFIG.enableLibra}, enableDuplicados=${CONFIG.enableDuplicados}, enableEspejo=${CONFIG.enableEspejo}`);
+            
+            runCount = { libra: 0, duplicados: 0, listaCartas: 0 };
+            
+            const pageType = getPageType();
+            if (['stock', 'offers', 'wants'].includes(pageType)) {
+                runListaCartas();
+            }
+        }
+    });
+
     function getPageType() {
         const path = window.location.pathname;
         const url = window.location.href;
