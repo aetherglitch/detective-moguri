@@ -4,12 +4,14 @@
     const CONFIG = {
         enableLibra: true,
         enableDuplicados: true,
+        enableEspejo: true,
         debug: false
     };
 
-    let runCount = { libra: 0, duplicados: 0 };
-    let notified = { libra: false, duplicados: false };
+    let runCount = { libra: 0, duplicados: 0, listaCartas: 0 };
+    let notified = { libra: false, duplicados: false, listaCartas: false };
     const MAX_RUNS = 2;
+    let cardList = [];
 
     function log(message, ...args) {
         if (CONFIG.debug) console.log(`[MoguDebug] ${message}`, ...args);
@@ -39,6 +41,23 @@
         return name.replace(/\s*\(V\.\d+\)\s*/g, '').trim();
     }
 
+    function insertCheapestBadge(row, isCheapest) {
+        const existingBadge = row.querySelector('.dc-cheapest-badge');
+        if (existingBadge) return;
+        
+        if (isCheapest) {
+            const badge = document.createElement('span');
+            badge.className = 'dc-cheapest-badge';
+            badge.textContent = '💰 Más bajo, ¡kupó!';
+            
+            const productAttributes = row.querySelector('.product-attributes');
+            if (productAttributes) {
+                productAttributes.style.position = 'relative';
+                productAttributes.appendChild(badge);
+            }
+        }
+    }
+
     function getCardDataFromRow(row) {
         let nameEl = row.querySelector('.article-name, .product-name, .seller-name');
         
@@ -53,7 +72,7 @@
             }
         }
         
-        const priceEl = row.querySelector('[class*="price"]');
+        const priceEl = row.querySelector('.price-container .color-primary');
         
         let expansionEl = null;
         const allLinks = row.querySelectorAll('a');
@@ -103,6 +122,18 @@
             }
         });
 
+        // Obtener nombre del vendedor desde el h1 de la página
+        let sellerName = 'Unknown';
+        const pageTitle = document.querySelector('.page-title-container h1');
+        if (pageTitle) {
+            // Obtener solo el primer hijo (el nombre del vendedor), ignorando los spans
+            let name = pageTitle.firstChild.textContent.trim();
+            if (name) {
+                sellerName = name;
+                log(`Seller from h1: ${sellerName}`);
+            }
+        }
+
         if (!nameEl) return null;
 
         const rowId = row.getAttribute('id') || '';
@@ -117,7 +148,9 @@
             condition: conditionText,
             isFoil: isFoil,
             isSpanish: isSpanish,
+            isEnglish: isEnglish,
             articleId: articleId,
+            sellerName: sellerName,
             row: row
         };
     }
@@ -162,28 +195,40 @@
         return 0;
     }
 
-    function showNotification(title, message) {
+    function showNotification(title, message, duration = 5000) {
         const existing = document.querySelector('.dc-notification');
         if (existing) existing.remove();
 
         const notif = document.createElement('div');
         notif.className = 'dc-notification';
         
+        const header = document.createElement('div');
+        header.className = 'dc-notification-header';
+        
         const titleDiv = document.createElement('div');
         titleDiv.className = 'dc-notification-title';
         titleDiv.textContent = title;
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'dc-notification-close';
+        closeBtn.textContent = '×';
+        closeBtn.onclick = () => notif.remove();
+        
+        header.appendChild(titleDiv);
+        header.appendChild(closeBtn);
         
         const msgDiv = document.createElement('div');
         msgDiv.className = 'dc-notification-message';
         msgDiv.textContent = message;
         
-        notif.appendChild(titleDiv);
+        notif.appendChild(header);
         notif.appendChild(msgDiv);
         document.body.appendChild(notif);
         
         setTimeout(() => {
-            notif.remove();
-        }, 4000);
+            notif.classList.add('dc-notification-hide');
+            setTimeout(() => notif.remove(), 300);
+        }, duration);
     }
 
     let inCartArticles = [];
@@ -250,6 +295,8 @@
         // Limpiar clases anteriores
         rows.forEach(row => {
             row.classList.remove('dc-cheapest', 'dc-other', 'dc-in-cart');
+            const existingBadge = row.querySelector('.dc-cheapest-badge');
+            if (existingBadge) existingBadge.remove();
         });
         
         chrome.storage.local.get(['dc_cart_cards'], function(result) {
@@ -289,6 +336,7 @@
                     notInCart.forEach(card => {
                         if (card === best) {
                             card.row.classList.add('dc-cheapest');
+                            insertCheapestBadge(card.row, true);
                             marked++;
                         } else {
                             card.row.classList.add('dc-other');
@@ -305,7 +353,7 @@
             
             if (marked > 0 && !notified.libra) {
                 notified.libra = true;
-                showNotification('🔮 Magia Libra', `${marked} carta(s) más barata(s) encontrada(s)`);
+                showNotification('🔮 Magia Libra', `${marked} carta(s) marcada(s)`);
             }
         });
     }
@@ -387,8 +435,123 @@
         
         if (duplicatesFound > 0 && !notified.duplicados) {
             notified.duplicados = true;
-            showNotification('⚠️ Magia Doble', `${duplicatesFound} carta(s) más cara(s) encontrada(s)`);
+            showNotification('⚠️ Magia Doble', `${duplicatesFound} duplicado(s) encontrado(s)`);
         }
+    }
+
+    function runListaCartas() {
+        if (runCount.listaCartas >= MAX_RUNS) return;
+        runCount.listaCartas++;
+        
+        log(`Lista Cartas (${runCount.listaCartas}/${MAX_RUNS})...`);
+        
+        chrome.storage.local.get(['dc_card_list'], function(result) {
+            cardList = result.dc_card_list || [];
+            
+            if (cardList.length === 0) {
+                log('Modo Moguri cazador vacío');
+                return;
+            }
+            
+            log(`Cartas en lista: ${cardList.join(', ')}`);
+            
+            const rows = document.querySelectorAll('.article-row');
+            if (rows.length === 0) return;
+            
+            const cards = [];
+            rows.forEach(row => {
+                const card = getCardDataFromRow(row);
+                if (card && card.name && card.price !== Infinity) {
+                    cards.push(card);
+                }
+            });
+            
+            if (cards.length === 0) return;
+            
+            const matchedCards = [];
+            
+            cards.forEach(card => {
+                const cleanName = cleanCardName(card.name).toLowerCase();
+                
+                cardList.forEach(listCard => {
+                    const listCardClean = cleanCardName(listCard).toLowerCase();
+                    if (cleanName.includes(listCardClean) || listCardClean.includes(cleanName)) {
+                        matchedCards.push(card);
+                    }
+                });
+            });
+            
+            if (matchedCards.length > 0) {
+                const groupedByName = {};
+                matchedCards.forEach(card => {
+                    const key = cleanCardName(card.name);
+                    if (!groupedByName[key]) groupedByName[key] = [];
+                    groupedByName[key].push(card);
+                });
+                
+                const cheapestByCard = [];
+                Object.entries(groupedByName).forEach(([name, cardGroup]) => {
+                    const sorted = [...cardGroup].sort((a, b) => a.price - b.price);
+                    cheapestByCard.push(sorted[0]);
+                });
+                
+                cheapestByCard.sort((a, b) => a.price - b.price);
+                
+                // Obtener lista existente y combinar
+                chrome.storage.local.get(['dc_card_list_sellers'], function(existingResult) {
+                    let existingSellers = existingResult.dc_card_list_sellers || [];
+                    
+                    // Crear mapa de existentes por nombre de carta
+                    const existingMap = {};
+                    existingSellers.forEach(s => {
+                        const key = cleanCardName(s.cardName).toLowerCase();
+                        existingMap[key] = s;
+                    });
+                    
+                    let hasChanges = false;
+                    let newCardsCount = 0;
+                    
+                    // Actualizar o añadir los nuevos
+                    cheapestByCard.forEach(card => {
+                        const key = cleanCardName(card.name).toLowerCase();
+                        const existing = existingMap[key];
+                        
+                        if (!existing) {
+                            // Nueva carta
+                            existingMap[key] = {
+                                cardName: card.name,
+                                sellerName: card.sellerName,
+                                price: card.price
+                            };
+                            hasChanges = true;
+                            newCardsCount++;
+                        } else if (card.price < existing.price) {
+                            // Precio más barato encontrado
+                            existingMap[key] = {
+                                cardName: card.name,
+                                sellerName: card.sellerName,
+                                price: card.price
+                            };
+                            hasChanges = true;
+                        }
+                    });
+                    
+                    const sellersList = Object.values(existingMap);
+                    
+                    chrome.storage.local.set({ dc_card_list_sellers: sellersList }, function() {
+                        chrome.runtime.sendMessage({ action: 'cardListUpdated' });
+                    });
+                    
+                    if (hasChanges) {
+                        showNotification('🏹 Modo Moguri cazador', `${newCardsCount} carta(s) añadida(s) - Total: ${sellersList.length}`);
+                    }
+                    
+                    log(`Lista Cartas: ${sellersList.length} cartas en total. Cambios: ${hasChanges}`);
+                });
+                
+                log(`Lista Cartas: ${matchedCards.length} cartas encontradas`);
+            }
+        });
     }
 
     function init() {
@@ -400,7 +563,12 @@
             if (result.dc_settings) {
                 CONFIG.enableLibra = result.dc_settings.libra;
                 CONFIG.enableDuplicados = result.dc_settings.duplicados;
-                log(`Config: enableLibra=${CONFIG.enableLibra}, enableDuplicados=${CONFIG.enableDuplicados}`);
+                CONFIG.enableEspejo = result.dc_settings.espejo !== undefined ? result.dc_settings.espejo : true;
+                log(`Config: enableLibra=${CONFIG.enableLibra}, enableDuplicados=${CONFIG.enableDuplicados}, enableEspejo=${CONFIG.enableEspejo}`);
+            }
+            
+            if (pageType === 'wants') {
+                insertWantsButton();
             }
             
             if (['stock', 'offers', 'wants'].includes(pageType) && CONFIG.enableLibra) {
@@ -415,11 +583,102 @@
                 setTimeout(runDuplicados, 3000);
             }
             
+            if (['stock', 'offers', 'wants'].includes(pageType) && CONFIG.enableEspejo) {
+                runListaCartas();
+                setTimeout(runListaCartas, 3000);
+            }
+            
             observePageChanges(pageType);
         });
     }
     
-    let mutationCount = { libra: 0, duplicados: 0 };
+    function insertWantsButton() {
+        if (document.getElementById('dc-modo-cazador-btn')) return;
+        
+        log('Intentando insertar botón de Modo cazador...');
+        
+        // Buscar el enlace de "Añadir una carta wanted"
+        const addCardLink = document.querySelector('a[href*="AddCards"]');
+        if (!addCardLink) {
+            log('No se encontró enlace AddCards');
+            return;
+        }
+        
+        // Obtener el padre del enlace
+        const parentDiv = addCardLink.parentElement;
+        if (!parentDiv) {
+            log('No se encontró padre del enlace');
+            return;
+        }
+        
+        log('Encontrado contenedor, insertando botón...');
+        
+        const btn = document.createElement('button');
+        btn.id = 'dc-modo-cazador-btn';
+        btn.className = 'btn btn-outline-primary';
+        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a Modo cazador</span>';
+        btn.style.cssText = 'margin-left: 1rem !important; background: linear-gradient(180deg, #3a3a5a 0%, #1a1a2e 100%) !important; color: #d4af37 !important; border-color: #d4af37 !important; font-weight: 600;';
+        
+        btn.addEventListener('click', function() {
+            let cardNames = [];
+            
+            // Try different selectors for different page types
+            // Stock/Offers page: .col-seller a
+            const sellerCards = document.querySelectorAll('.col-seller a');
+            sellerCards.forEach(el => {
+                const cardName = el.textContent.trim();
+                if (cardName && !cardNames.includes(cardName)) {
+                    cardNames.push(cardName);
+                }
+            });
+            
+            // Wanted list page: table.data-table tbody tr .name a
+            if (cardNames.length === 0) {
+                const cardRows = document.querySelectorAll('table.data-table tbody tr');
+                cardRows.forEach(row => {
+                    const nameEl = row.querySelector('.name a');
+                    if (nameEl) {
+                        const cardName = nameEl.textContent.trim();
+                        if (cardName && !cardNames.includes(cardName)) {
+                            cardNames.push(cardName);
+                        }
+                    }
+                });
+            }
+            
+            if (cardNames.length === 0) {
+                alert('No se encontraron cartas en la lista');
+                return;
+            }
+            
+            chrome.storage.local.get(['dc_card_list'], function(result) {
+                let cards = result.dc_card_list || [];
+                let addedCount = 0;
+                
+                cardNames.forEach(cardName => {
+                    if (!cards.includes(cardName)) {
+                        cards.push(cardName);
+                        addedCount++;
+                    }
+                });
+                
+                chrome.storage.local.set({ dc_card_list: cards }, function() {
+                    btn.innerHTML = '<span class="fonticon-check me-2"></span><span>Añadidas (' + addedCount + ')</span>';
+                    btn.style.background = 'linear-gradient(180deg, #1a5a3a 0%, #0a3a1a 100%) !important';
+                    
+                    setTimeout(function() {
+                        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a Modo cazador</span>';
+                        btn.style.background = 'linear-gradient(180deg, #3a3a5a 0%, #1a1a2e 100%) !important';
+                    }, 3000);
+                });
+            });
+        });
+        
+        parentDiv.appendChild(btn);
+        log('Botón Modo cazador insertado');
+    }
+    
+    let mutationCount = { libra: 0, duplicados: 0, listaCartas: 0 };
     const MAX_MUTATIONS = 3;
     let hasRunInitial = false;
     let currentPageType = null;
@@ -492,6 +751,10 @@
                     if (['stock', 'offers', 'wants'].includes(pageType)) {
                         runCount.libra = 0;
                         runLibra();
+                        if (CONFIG.enableEspejo) {
+                            runCount.listaCartas = 0;
+                            runListaCartas();
+                        }
                     }
                     if (pageType === 'cart') {
                         runCount.duplicados = 0;
@@ -511,6 +774,13 @@
                 if (['stock', 'offers', 'wants'].includes(currentPageType)) {
                     runLibra();
                     setTimeout(runLibra, 2000);
+                    if (CONFIG.enableEspejo) {
+                        runListaCartas();
+                        setTimeout(runListaCartas, 2000);
+                    }
+                }
+                if (currentPageType === 'wants') {
+                    insertWantsButton();
                 }
                 if (currentPageType === 'cart') {
                     runDuplicados();
@@ -524,7 +794,7 @@
         document.querySelectorAll('.dc-cheapest, .dc-other, .dc-in-cart, .dc-duplicate').forEach(el => {
             el.classList.remove('dc-cheapest', 'dc-other', 'dc-in-cart', 'dc-duplicate');
         });
-        document.querySelectorAll('.dc-badge, .dc-badge-doble').forEach(el => el.remove());
+        document.querySelectorAll('.dc-badge, .dc-badge-doble, .dc-cheapest-badge').forEach(el => el.remove());
     }
 
     function addToCartArticles(row) {
@@ -547,18 +817,23 @@
         if (request.action === 'updateSettings') {
             CONFIG.enableLibra = request.settings.libra;
             CONFIG.enableDuplicados = request.settings.duplicados;
-            runCount = { libra: 0, duplicados: 0 };
-            notified = { libra: false, duplicados: false };
+            CONFIG.enableEspejo = request.settings.espejo !== undefined ? request.settings.espejo : true;
+            runCount = { libra: 0, duplicados: 0, listaCartas: 0 };
+            notified = { libra: false, duplicados: false, listaCartas: false };
             
             document.querySelectorAll('.dc-cheapest, .dc-other, .dc-duplicate').forEach(el => {
                 el.classList.remove('dc-cheapest', 'dc-other', 'dc-duplicate');
             });
             document.querySelectorAll('.dc-badge').forEach(el => el.remove());
+            document.querySelectorAll('.dc-cheapest-badge').forEach(el => el.remove());
             
             const pageType = getPageType();
             setTimeout(() => {
                 if (pageType === 'stock' && CONFIG.enableLibra) runLibra();
                 if (pageType === 'cart' && CONFIG.enableDuplicados) runDuplicados();
+                if (['stock', 'offers', 'wants'].includes(pageType) && CONFIG.enableEspejo) {
+                    runListaCartas();
+                }
             }, 1000);
             
             sendResponse({ success: true });
