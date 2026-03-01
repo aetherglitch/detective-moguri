@@ -616,7 +616,7 @@
         const btn = document.createElement('button');
         btn.id = 'dc-modo-cazador-btn';
         btn.className = 'btn btn-outline-primary';
-        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a Modo cazador</span>';
+        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a lista de wants de Magia Espejo</span>';
         btn.style.cssText = 'margin-left: 1rem !important; background: linear-gradient(180deg, #3a3a5a 0%, #1a1a2e 100%) !important; color: #d4af37 !important; border-color: #d4af37 !important; font-weight: 600;';
         
         btn.addEventListener('click', function() {
@@ -667,7 +667,7 @@
                     btn.style.background = 'linear-gradient(180deg, #1a5a3a 0%, #0a3a1a 100%) !important';
                     
                     setTimeout(function() {
-                        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a Modo cazador</span>';
+                        btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a lista de wants de Magia Espejo</span>';
                         btn.style.background = 'linear-gradient(180deg, #3a3a5a 0%, #1a1a2e 100%) !important';
                     }, 3000);
                 });
