@@ -44,7 +44,7 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 ## Uso
 
 ### En ofertas/stock
-- Las cartas más barata se marcan con fondo verde y la etiqueta "💰 Oferta, ¡kupó!"
+- Las cartas más barata se marcan con fondo verde y la etiqueta "💰 Más bajo, ¡kupó!"
 - Las otras ofertas de la misma carta se muestran con menor opacidad
 
 ### En el carrito
