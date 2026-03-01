@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const STORAGE_KEY = 'dc_card_list';
-    const libraToggle = document.getElementById('libraToggle');
-    const duplicadosToggle = document.getElementById('duplicadosToggle');
-    const espejoToggle = document.getElementById('espejoToggle');
-    const mainView = document.getElementById('mainView');
-    const cardListView = document.getElementById('cardListView');
-    const backBtn = document.getElementById('backBtn');
-    const viewTitle = document.getElementById('viewTitle');
+    try {
+        const STORAGE_KEY = 'dc_card_list';
+        const libraToggle = document.getElementById('libraToggle');
+        const duplicadosToggle = document.getElementById('duplicadosToggle');
+        const espejoToggle = document.getElementById('espejoToggle');
+        const mainView = document.getElementById('mainView');
+        const cardListView = document.getElementById('cardListView');
+        const backBtn = document.getElementById('backBtn');
+        const viewTitle = document.getElementById('viewTitle');
 
     const defaults = {
         libra: true,
@@ -75,9 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
         backBtn.style.display = 'none';
         viewTitle.textContent = 'Menú principal';
     }
-
-    const openCardListBtn = document.getElementById('openCardList');
-    openCardListBtn.addEventListener('click', showCardListView);
 
     backBtn.addEventListener('click', showMainView);
 
@@ -366,4 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     loadSettings();
+    
+    } catch (error) {
+        console.error('[MoguPopup] Error:', error);
+    }
 });

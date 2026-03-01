@@ -560,7 +560,7 @@
                     });
                     
                     if (hasChanges) {
-                        showNotification('🏹 Modo Moguri cazador', `${newCardsCount} carta(s) añadida(s) - Total: ${sellersList.length}`);
+                        showNotification('🪞 Magia Espejo', `${newCardsCount} carta(s) añadida(s) - Total: ${sellersList.length}`);
                     }
                     
                     log(`Lista Cartas: ${sellersList.length} cartas en total. Cambios: ${hasChanges}`);
@@ -610,9 +610,9 @@
     }
     
     function insertWantsButton() {
-        if (document.getElementById('dc-modo-cazador-btn')) return;
+        if (document.getElementById('dc-magia-espejo-btn')) return;
         
-        log('Intentando insertar botón de Modo cazador...');
+        log('Intentando insertar botón de Magia Espejo...');
         
         // Buscar el enlace de "Añadir una carta wanted"
         const addCardLink = document.querySelector('a[href*="AddCards"]');
@@ -631,7 +631,7 @@
         log('Encontrado contenedor, insertando botón...');
         
         const btn = document.createElement('button');
-        btn.id = 'dc-modo-cazador-btn';
+        btn.id = 'dc-magia-espejo-btn';
         btn.className = 'btn btn-outline-primary';
         btn.innerHTML = '<span class="fonticon-search me-2"></span><span>Añadir a lista de wants de Magia Espejo</span>';
         btn.style.cssText = 'margin-left: 1rem !important; background: linear-gradient(180deg, #3a3a5a 0%, #1a1a2e 100%) !important; color: #d4af37 !important; border-color: #d4af37 !important; font-weight: 600;';
@@ -680,6 +680,7 @@
                 });
                 
                 chrome.storage.local.set({ dc_card_list: cards }, function() {
+                    chrome.runtime.sendMessage({ action: 'cardListUpdated' });
                     btn.innerHTML = '<span class="fonticon-check me-2"></span><span>Añadidas (' + addedCount + ')</span>';
                     btn.style.background = 'linear-gradient(180deg, #1a5a3a 0%, #0a3a1a 100%) !important';
                     
@@ -703,23 +704,6 @@
     function observePageChanges(pageType) {
         currentPageType = pageType;
         let debounceTimer = null;
-        
-        const runWithCheck = () => {
-            if (['stock', 'offers', 'wants'].includes(pageType)) {
-                if (mutationCount.libra < MAX_MUTATIONS || !hasRunInitial) {
-                    runLibra();
-                    mutationCount.libra++;
-                    hasRunInitial = true;
-                }
-            }
-            if (pageType === 'cart') {
-                if (mutationCount.duplicados < MAX_MUTATIONS || !hasRunInitial) {
-                    runDuplicados();
-                    mutationCount.duplicados++;
-                    hasRunInitial = true;
-                }
-            }
-        };
         
         document.addEventListener('click', (e) => {
             // Detectar botón de eliminar en el carrito
