@@ -52,7 +52,7 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 
 ### Magia Espejo
 - Accede desde el toggle en el popup o pulsando el icono de configuración
-- **Añadir cartas**: Escribe los nombres de las cartas (una por línea) o usa el botón "Añadir a Modo cazador" en las páginas de wants
+- **Añadir cartas**: Escribe los nombres de las cartas (una por línea) o usa el botón "Añadir a lista de wants de Magia Espejo" en las páginas de wants
 - **Ver precios**: La extensión busca automáticamente los precios más bajos de tus cartas en la lista
 - **Descargar lista**: Exporta tu lista de cartas a un archivo de texto
 - **Reinicializar precios**: Borra los precios guardados para volver a buscar desde cero
