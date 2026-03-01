@@ -12,7 +12,12 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 
 ### ⚠️ Magia Doble
 - En el carrito, detecta cartas duplicadas
-- Marca en rojo las que son más caras que la opción más barata
+- Marca en rojo las que son más caras que la opción más barato
+
+### 🪞 Magia Espejo
+- Gestiona una lista personal de cartas para comparar precios
+- Añade cartas desde la página de ofertas o manualment
+- Compara precios entre vendedores y encuentra las mejores ofertas
 
 ## Instalación
 
@@ -45,8 +50,17 @@ Este proyecto nace de la idea de que, por lo general, el Shopping Wizard de Card
 ### En el carrito
 - Las cartas duplicadas que cuestan más que la más barata de ellas se marcan en rojo con la etiqueta "💰 Más caro, ¡kupó!"
 
+### Magia Espejo
+- Accede desde el toggle en el popup o pulsando el icono de configuración
+- **Añadir cartas**: Escribe los nombres de las cartas (una por línea) o usa el botón "Añadir a Modo cazador" en las páginas de wants
+- **Ver precios**: La extensión busca automáticamente los precios más bajos de tus cartas en la lista
+- **Descargar lista**: Exporta tu lista de cartas a un archivo de texto
+- **Reinicializar precios**: Borra los precios guardados para volver a buscar desde cero
+- **Vaciar lista**: Elimina todas las cartas de la lista
+
 ### Popup
-- Activa o desactiva cada función con los activadores al lado de cada función
+- Activa o desactiva cada función con los toggles
+- **⚙️ (config)**: Abre la configuración de Magia Espejo
 - **Vaciar caché**: Limpia el historial de cartas en carrito (útil si hay problemas)
 
 ## Disclaimer
