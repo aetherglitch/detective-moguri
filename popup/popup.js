@@ -550,7 +550,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function clearList() {
         if (confirm('¿Estás seguro de que quieres vaciar la lista de cartas?')) {
-            saveCardList([]);
+            chrome.storage.local.set({ [STORAGE_KEY]: [], dc_card_list_sellers: [] }, function() {
+                renderCardList([]);
+            });
         }
     }
 

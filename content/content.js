@@ -56,7 +56,7 @@
 
     function cleanCardName(name) {
         if (!name || typeof name !== 'string') return '';
-        return name.replace(/\s*\(V\.\d+\)\s*/g, '').trim();
+        return name.replace(/\s*\(V\.?\s*\d*\)\s*/gi, '').trim();
     }
 
     function insertCheapestBadge(row, isCheapest) {
@@ -489,7 +489,8 @@
             const matchedCards = [];
             
             cards.forEach(card => {
-                const cleanName = cleanCardName(card.name).toLowerCase();
+                const cardName = card.name || (typeof card === 'object' ? card.cardName : card);
+                const cleanName = cleanCardName(cardName).toLowerCase();
                 
                 cardList.forEach(listCard => {
                     const listCardName = typeof listCard === 'object' ? listCard.cardName : listCard;
@@ -503,7 +504,8 @@
             if (matchedCards.length > 0) {
                 const groupedByName = {};
                 matchedCards.forEach(card => {
-                    const key = cleanCardName(card.name);
+                    const cardName = card.name || (typeof card === 'object' ? card.cardName : card);
+                    const key = cleanCardName(cardName);
                     if (!groupedByName[key]) groupedByName[key] = [];
                     groupedByName[key].push(card);
                 });
@@ -612,6 +614,14 @@
     }
     
     function insertWantsButton() {
+        // Solo insertar botón si hay una wantlist específica (con ID en la URL)
+        const path = window.location.pathname;
+        const wantsMatch = path.match(/\/Wants\/(\d+)/);
+        if (!wantsMatch) {
+            log('No hay wantlist específica, no se inserta botón');
+            return;
+        }
+        
         if (document.getElementById('dc-magia-espejo-btn')) return;
         
         log('Intentando insertar botón de Magia Espejo...');
