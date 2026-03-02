@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wantlistCards.forEach(card => {
                 const cardName = typeof card === 'object' ? card.cardName : card;
                 const cardInfo = sellersData.find(s => 
-                    s.cardName === cardName || cleanForCompare(s.cardName) === cleanForCompare(cardName)
+                    cleanForCompare(s.cardName) === cleanForCompare(cardName)
                 );
                 
                 if (cardInfo && cardInfo.sellerName !== '-') {
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cards.forEach(card => {
             const cardName = typeof card === 'object' ? card.cardName : card;
             const sellerInfo = sellersData.find(s => 
-                s.cardName === cardName || cleanForCompare(s.cardName) === cleanForCompare(cardName)
+                cleanForCompare(s.cardName) === cleanForCompare(cardName)
             );
             
             if (sellerInfo && sellerInfo.sellerName !== '-') {
@@ -426,7 +426,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function cleanForCompare(str) {
-        return str.toLowerCase().replace(/\s+/g, ' ').trim();
+        if (!str || typeof str !== 'string') return '';
+        return str.toLowerCase().replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
     function addCard(wantlistName = null) {
@@ -493,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cards.forEach(card => {
                     const cardName = typeof card === 'object' ? card.cardName : card;
                     const sellerInfo = sellersData.find(s => 
-                        s.cardName === cardName || cleanForCompare(s.cardName) === cleanForCompare(cardName)
+                        cleanForCompare(s.cardName) === cleanForCompare(cardName)
                     );
                     
                     if (sellerInfo && sellerInfo.sellerName !== '-') {
@@ -583,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cards.forEach(card => {
                     const cardName = typeof card === 'object' ? card.cardName : card;
                     const sellerInfo = sellersData.find(s => 
-                        s.cardName === cardName || cleanForCompare(s.cardName) === cleanForCompare(cardName)
+                        cleanForCompare(s.cardName) === cleanForCompare(cardName)
                     );
                     
                     if (sellerInfo && sellerInfo.sellerName !== '-') {

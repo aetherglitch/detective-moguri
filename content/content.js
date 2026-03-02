@@ -56,7 +56,8 @@
 
     function cleanCardName(name) {
         if (!name || typeof name !== 'string') return '';
-        return name.replace(/\s*\(V\.?\s*\d*\)\s*/gi, '').trim();
+        // Eliminar todo entre paréntesis incluyendo los paréntesis
+        return name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
     function insertCheapestBadge(row, isCheapest) {
@@ -467,7 +468,6 @@
             cardList = result.dc_card_list || [];
             
             if (cardList.length === 0) {
-                log('Magia Espejo vacío');
                 return;
             }
             
@@ -490,12 +490,15 @@
             
             cards.forEach(card => {
                 const cardName = card.name || (typeof card === 'object' ? card.cardName : card);
-                const cleanName = cleanCardName(cardName).toLowerCase();
+                const cleanName = cleanCardName(cardName).toLowerCase().replace(/\s+/g, ' ');
+                
+                log(`Comparando carta página: "${cardName}" -> clean: "${cleanName}"`);
                 
                 cardList.forEach(listCard => {
                     const listCardName = typeof listCard === 'object' ? listCard.cardName : listCard;
-                    const listCardClean = cleanCardName(listCardName).toLowerCase();
-                    if (cleanName.includes(listCardClean) || listCardClean.includes(cleanName)) {
+                    const listCardClean = cleanCardName(listCardName).toLowerCase().replace(/\s+/g, ' ');
+                    
+                    if (cleanName === listCardClean || cleanName.includes(listCardClean) || listCardClean.includes(cleanName)) {
                         matchedCards.push(card);
                     }
                 });
@@ -537,22 +540,17 @@
                         const key = cleanCardName(card.name).toLowerCase();
                         const existing = existingMap[key];
                         
+                        // Siempre guardar el precio más reciente encontrado
+                        existingMap[key] = {
+                            cardName: card.name,
+                            sellerName: card.sellerName,
+                            price: card.price
+                        };
+                        
                         if (!existing) {
-                            // Nueva carta
-                            existingMap[key] = {
-                                cardName: card.name,
-                                sellerName: card.sellerName,
-                                price: card.price
-                            };
                             hasChanges = true;
                             newCardsCount++;
-                        } else if (card.price < existing.price) {
-                            // Precio más barato encontrado
-                            existingMap[key] = {
-                                cardName: card.name,
-                                sellerName: card.sellerName,
-                                price: card.price
-                            };
+                        } else if (card.price !== existing.price) {
                             hasChanges = true;
                         }
                     });
