@@ -614,17 +614,17 @@
     }
     
     function insertWantsButton() {
-        // Solo insertar botón si hay una wantlist específica (con ID en la URL)
+        // Solo insertar botón si hay una wantlist específica (con ID numérico en la URL)
         const path = window.location.pathname;
-        const wantsMatch = path.match(/\/Wants\/(\d+)/);
+        const url = window.location.href;
+        
+        // Verificar que es una wantlist específica con ID numérico
+        const wantsMatch = path.match(/\/Wants\/(\d+)$/);
         if (!wantsMatch) {
-            log('No hay wantlist específica, no se inserta botón');
             return;
         }
         
         if (document.getElementById('dc-magia-espejo-btn')) return;
-        
-        log('Intentando insertar botón de Magia Espejo...');
         
         // Buscar el enlace de "Añadir una carta wanted" - múltiples selectores
         let addCardLink = document.querySelector('a[href*="AddCards"]');
