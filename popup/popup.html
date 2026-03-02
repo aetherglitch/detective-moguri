@@ -354,6 +354,27 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
+        .btn-group {
+            display: flex;
+            gap: 0;
+            margin-top: 8px;
+        }
+
+        .btn-group .btn-download {
+            margin-top: 0;
+            border-radius: 0;
+            flex: 1;
+        }
+
+        .btn-group .btn-download:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .btn-group .btn-download:last-child {
+            border-radius: 0 4px 4px 0;
+            border-left: none;
+        }
+
         .btn-clear {
             width: 100%;
             padding: 10px;
@@ -375,6 +396,75 @@
         .btn-clear:hover {
             background: linear-gradient(180deg, #6a2a2a 0%, #4a1a1a 100%);
             box-shadow: 0 0 15px rgba(255, 64, 64, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .view-toggle-section {
+            display: flex;
+            gap: 0;
+            margin-bottom: 12px;
+            border: 1px solid #d4af37;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
+            color: #8080a0;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .view-toggle-btn:first-child {
+            border-right: 1px solid #d4af37;
+        }
+
+        .view-toggle-btn.active {
+            background: linear-gradient(180deg, #d4af37 0%, #a08020 100%);
+            color: #1a1a2e;
+        }
+
+        .view-toggle-btn:hover:not(.active) {
+            background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 100%);
+            color: #d4af37;
+        }
+
+        .wantlist-header {
+            background: linear-gradient(180deg, #1a3a5a 0%, #1a2a3a 100%);
+            padding: 10px 15px;
+            color: #40ff80;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 1px solid #3a3a5a;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wantlist-header:hover {
+            background: linear-gradient(180deg, #2a4a6a 0%, #2a3a4a 100%);
+        }
+
+        .wantlist-header .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .wantlist-header.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .wantlist-cards {
+            display: none;
+        }
+
+        .wantlist-cards.expanded {
+            display: block;
         }
 
         .input-section textarea {
@@ -627,10 +717,18 @@
 
     <div class="view" id="cardListView">
         <div class="content-card-list">
+            <div class="view-toggle-section">
+                <button id="viewAllBtn" class="view-toggle-btn active">📋 Todas las listas</button>
+                <button id="viewWantlistsBtn" class="view-toggle-btn">📑 Por Wantlist</button>
+            </div>
+            
             <div class="input-section">
                 <textarea id="cardInput" placeholder="Nombre de las cartas (una por línea)&#10;Ej:&#10;Black Lotus&#10;Time Walk&#10;Ancestral Recall"></textarea>
                 <button id="addCardBtn" class="btn-add">➕ Añadir Cartas</button>
-                <button id="downloadListBtn" class="btn-download">⬇️ Descargar Lista</button>
+                <div class="btn-group">
+                    <button id="downloadListBtn" class="btn-download">⬇️ Descargar</button>
+                    <button id="copyListBtn" class="btn-download">📋 Copiar</button>
+                </div>
                 <button id="resetPricesBtn" class="btn-download">🔄 Reinicializar precios</button>
                 <button id="clearListBtn" class="btn-clear">🗑️ Vaciar Lista</button>
             </div>

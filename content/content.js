@@ -55,6 +55,7 @@
     }
 
     function cleanCardName(name) {
+        if (!name || typeof name !== 'string') return '';
         return name.replace(/\s*\(V\.\d+\)\s*/g, '').trim();
     }
 
@@ -466,7 +467,7 @@
             cardList = result.dc_card_list || [];
             
             if (cardList.length === 0) {
-                log('Modo Moguri cazador vacío');
+                log('Magia Espejo vacío');
                 return;
             }
             
@@ -491,7 +492,8 @@
                 const cleanName = cleanCardName(card.name).toLowerCase();
                 
                 cardList.forEach(listCard => {
-                    const listCardClean = cleanCardName(listCard).toLowerCase();
+                    const listCardName = typeof listCard === 'object' ? listCard.cardName : listCard;
+                    const listCardClean = cleanCardName(listCardName).toLowerCase();
                     if (cleanName.includes(listCardClean) || listCardClean.includes(cleanName)) {
                         matchedCards.push(card);
                     }
@@ -614,10 +616,22 @@
         
         log('Intentando insertar botón de Magia Espejo...');
         
-        // Buscar el enlace de "Añadir una carta wanted"
-        const addCardLink = document.querySelector('a[href*="AddCards"]');
+        // Buscar el enlace de "Añadir una carta wanted" - múltiples selectores
+        let addCardLink = document.querySelector('a[href*="AddCards"]');
+        
         if (!addCardLink) {
-            log('No se encontró enlace AddCards');
+            // Probar otros selectores comunes
+            addCardLink = document.querySelector('a.btn-primary');
+        }
+        if (!addCardLink) {
+            addCardLink = document.querySelector('.add-wants-button');
+        }
+        if (!addCardLink) {
+            addCardLink = document.querySelector('a[href*="Wants"]');
+        }
+        
+        if (!addCardLink) {
+            log('No se encontró enlace AddCards. HTML de la página: ' + document.body.innerHTML.substring(0, 500));
             return;
         }
         
@@ -668,13 +682,40 @@
                 return;
             }
             
+            let wantlistName = 'Sin wantlist';
+            const url = window.location.href;
+            const path = window.location.pathname;
+            
+            // Buscar ID en path: el /Wants/23388687
+            const wantsMatch = path.match(/\/Wants\/(\d+)/);
+            let wantlistId = wantsMatch ? wantsMatch[1] : null;
+            
+            // Si no está en el path, buscar en query params
+            if (!wantlistId) {
+                const urlParams = new URLSearchParams(window.location.search);
+                wantlistId = urlParams.get('idWantslist');
+            }
+            
+            log(`URL: ${url}, Path: ${path}, Wantlist ID: ${wantlistId}`);
+            
+            if (wantlistId) {
+                const wantlistTitleEl = document.querySelector('.page-title-container .flex-fill h1');
+                
+                if (wantlistTitleEl) {
+                    wantlistName = wantlistTitleEl.textContent.trim();
+                } else {
+                    wantlistName = 'Wantlist ' + wantlistId;
+                }
+            }
+            
             chrome.storage.local.get(['dc_card_list'], function(result) {
                 let cards = result.dc_card_list || [];
                 let addedCount = 0;
                 
                 cardNames.forEach(cardName => {
-                    if (!cards.includes(cardName)) {
-                        cards.push(cardName);
+                    const exists = cards.some(c => (typeof c === 'object' ? c.cardName : c) === cardName);
+                    if (!exists) {
+                        cards.push({ cardName: cardName, wantlist: wantlistName });
                         addedCount++;
                     }
                 });
@@ -693,7 +734,7 @@
         });
         
         parentDiv.appendChild(btn);
-        log('Botón Modo cazador insertado');
+        log('Botón Magia Espejo insertado');
     }
     
     let mutationCount = { libra: 0, duplicados: 0, listaCartas: 0 };
@@ -791,13 +832,6 @@
         });
     }
     
-    function clearPreviousMarks() {
-        document.querySelectorAll('.dc-cheapest, .dc-other, .dc-in-cart, .dc-duplicate').forEach(el => {
-            el.classList.remove('dc-cheapest', 'dc-other', 'dc-in-cart', 'dc-duplicate');
-        });
-        document.querySelectorAll('.dc-badge, .dc-badge-doble, .dc-cheapest-badge').forEach(el => el.remove());
-    }
-
     function addToCartArticles(row) {
         const card = getCardDataFromRow(row);
         if (!card || !card.name) return;
