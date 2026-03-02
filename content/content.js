@@ -540,18 +540,20 @@
                         const key = cleanCardName(card.name).toLowerCase();
                         const existing = existingMap[key];
                         
-                        // Siempre guardar el precio más reciente encontrado
-                        existingMap[key] = {
-                            cardName: card.name,
-                            sellerName: card.sellerName,
-                            price: card.price
-                        };
-                        
-                        if (!existing) {
-                            hasChanges = true;
-                            newCardsCount++;
-                        } else if (card.price !== existing.price) {
-                            hasChanges = true;
+                        // Solo guardar si no existe o si el precio es más barato
+                        if (!existing || card.price < existing.price) {
+                            existingMap[key] = {
+                                cardName: card.name,
+                                sellerName: card.sellerName,
+                                price: card.price
+                            };
+                            
+                            if (!existing) {
+                                hasChanges = true;
+                                newCardsCount++;
+                            } else if (card.price < existing.price) {
+                                hasChanges = true;
+                            }
                         }
                     });
                     
